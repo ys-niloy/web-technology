@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>View Users</title>
+</head>
+
+<body>
+    <h2>User list</h2>
+    <a href='home.php'>Back</a> |
+    <a href='../controller/logout.php'>Logout</a>
+    <br><br>
+
+    <table border="1" id="userTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Password</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- User data will be dynamically inserted here -->
+        </tbody>
+    </table>
+
+    <script>
+        // Function to load user data
+        function loadUsers() {
+            let xhttp = new XMLHttpRequest();
+            xhttp.open('GET', 'viewUsers.php', true);
+            xhttp.onreadystatechange = function () {
+                if (this.readyState === 4 && this.status === 200) {
+                    let response = JSON.parse(this.responseText);
+                    if (response.status === 'success') {
+                        populateTable(response.data);
+                    } else {
+                        alert(response.message);
+                    }
+                }
+            };
+            xhttp.send();
+        }
+
+        // Function to populate the user table
+        function populateTable(users) {
+            const tbody = document.getElementById('userTable').getElementsByTagName('tbody')[0];
+            tbody.innerHTML = ''; // Clear existing rows
+
+            if (users.length === 0) {
+                const row = tbody.insertRow();
+                const cell = row.insertCell(0);
+                cell.colSpan = 5;
+                cell.textContent = 'No users found';
+            } else {
+                users.forEach(user => {
+                    const row = tbody.insertRow();
+                    row.innerHTML = `
+                        <td>${user.id}</td>
+                        <td>${user.username}</td>
+                        <td>${user.email}</td>
+                        <td>${user.password}</td>
+                        <td>
+                            <a href="edit.php?id=${user.id}">EDIT</a> |
+                            <a href="../controller/delete.php?id=${user.id}">DELETE</a>
+                        </td>
+                    `;
+                });
+            }
+        }
+
+        // Load users on page load
+        window.onload = loadUsers;
+    </script>
+</body>
+
+</html>
